@@ -14,6 +14,8 @@ import { contextSrv } from 'app/core/services/context_srv';
 import { Echo } from 'app/core/services/echo/Echo';
 import { configureStore } from 'app/store/configureStore';
 
+import { ExtensionRegistriesProvider } from '../extensions/ExtensionRegistriesContext';
+import { setupPluginExtensionRegistries } from '../extensions/registry/setup';
 import { getPluginSettings } from '../pluginSettings';
 import { importAppPlugin } from '../plugin_loader';
 
@@ -88,6 +90,7 @@ async function renderUnderRouter(page = '') {
 
   appPluginNavItem.parentItem = appsSection;
 
+  const registries = setupPluginExtensionRegistries();
   const pagePath = page ? `/${page}` : '';
   const store = configureStore();
   const route = {
@@ -102,7 +105,13 @@ async function renderUnderRouter(page = '') {
     <Router history={locationService.getHistory()}>
       <Provider store={store}>
         <GrafanaContext.Provider value={getGrafanaContextMock()}>
-          <Route path={`/a/:pluginId${pagePath}`} exact render={(props) => <GrafanaRoute {...props} route={route} />} />
+          <ExtensionRegistriesProvider registries={registries}>
+            <Route
+              path={`/a/:pluginId${pagePath}`}
+              exact
+              render={(props) => <GrafanaRoute {...props} route={route} />}
+            />
+          </ExtensionRegistriesProvider>
         </GrafanaContext.Provider>
       </Provider>
     </Router>
