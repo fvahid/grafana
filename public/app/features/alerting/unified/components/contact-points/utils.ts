@@ -123,8 +123,11 @@ export function enhanceContactPointsWithMetadata({
   const fullyInheritedTree = computeInheritedTree(alertmanagerConfiguration?.alertmanager_config?.route ?? {});
   const usedContactPoints = getUsedContactPoints(fullyInheritedTree);
   const usedContactPointsByName = groupBy(usedContactPoints, 'receiver');
+  const contactPointsList = alertmanagerConfiguration
+    ? (alertmanagerConfiguration?.alertmanager_config.receivers ?? [])
+    : (contactPoints ?? []);
 
-  const enhanced = contactPoints.map((contactPoint) => {
+  const enhanced = contactPointsList.map((contactPoint) => {
     const receivers = extractReceivers(contactPoint);
     const statusForReceiver = status.find((status) => status.name === contactPoint.name);
 
